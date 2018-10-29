@@ -11,6 +11,8 @@
 
 package project_1;
 
+import java.util.Arrays;
+
 
 /**
  * The problem defines the initial and goal state and the operators 
@@ -18,43 +20,78 @@ package project_1;
 
 public class Problem {
     
-    private String initial;
-    private String goal;
-    private int dimension; // The dimension of the nxn matrix n-puzzle 
+    private Integer [] initial;
+    private Integer [] goal;
+    private int nPuzzleSize; // The nPuzzleSize of the nxn matrix n-puzzle 
     
-    Problem(String initialState, String goalState){
-        this.initial = initialState;
-        this.goal = goalState;
+    Problem(Integer [] initialState, Integer [] goalState, int dimension){
+        this.initial = initialState.clone();
+        this.goal = goalState.clone();
+        this.nPuzzleSize = dimension;
     }
     
-    public String initialState(){
+    public Integer [] initialState(){
         return initial;
     }
     
-    public void setInitialState(String initialGoal){
-        initial = initialGoal;
+    public void setInitialState(Integer [] initialGoal){
+        initial = initialGoal.clone();
     }
     
-    public void setGoalState(String goalState){
-        goal = goalState;
+    public void setGoalState(Integer [] goalState){
+        goal = goalState.clone();
     }
     
-    public String goalState(){
+    public Integer [] goalState(){
         return goal;
+    }
+    
+    public int puzzleDimension(){
+        return nPuzzleSize;
     }
     
     public class Operators{
            
         public Node moveUp(Node currentState){
-            Node newState = null;
-            int blankPosition = currentState.currentState().indexOf('0');
-            int row = blankPosition/dimension;
-            if(row > 0){
-                newState = new Node(currentState.currentState());
+            Node newNode = null;
+            Integer [] newState = currentState.getCurrentState();
+            int dimension = currentState.getDimension();
+            int blankPosition = Arrays.asList(newState).indexOf(0);
+            int row = blankPosition/nPuzzleSize;
+            int col = blankPosition % nPuzzleSize;
+            if(row > 0){                
+                // Swap with number in row above                
+                newState[blankPosition] = newState[dimension*(row-1) + col];
+                newState[dimension*(row-1) + col] = 0;
                 
-                
+                // Createa new node with the new state and cost
+                newNode = new Node(newState,dimension);                
+                // Set the new cost
+                int newCost = currentState.currentCost()+1;                
+                newNode.setCost(newCost);                
             }            
-            return newState;
+            return newNode;
+        }
+        
+        public Node moveDown(Node currentState){
+            Node newNode = null;
+            Integer [] newState = currentState.getCurrentState();
+            int dimension = currentState.getDimension();
+            int blankPosition = Arrays.asList(newState).indexOf(0);
+            int row = blankPosition/nPuzzleSize;
+            int col = blankPosition % nPuzzleSize;
+            if(row < dimension - 1 ){                
+                // Swap with number in row above                
+                newState[blankPosition] = newState[dimension*(row+1) + col];
+                newState[dimension*(row+1) + col] = 0;
+                
+                // Createa new node with the new state and cost
+                newNode = new Node(newState,dimension);                
+                // Set the new cost
+                int newCost = currentState.currentCost()+1;                
+                newNode.setCost(newCost);                
+            }            
+            return newNode;
         }
     }
 

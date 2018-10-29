@@ -5,35 +5,38 @@
  */
 package project_1;
 
-import java.util.Comparator;
 import java.util.List;
-
+import java.util.Arrays;
 /**
  *
  * @author super0
  */
-public class Node implements Comparator<Node>, Comparable<Node> {
+public class Node implements Comparable<Node> {
     
-        private String state; // Represents an n-puzzle current state
+        private Integer [] state; // Represents an n-puzzle current state
+        private final int dimension; // Row column dimension of the nxn matrix
         private int cost; // To implement A* search
         private List<Node> children; // Expanded children of this state
         private Node parentNode; // To track path from initial state to goal state 
 
 
         // Main constructor
-        public Node(String state) {
-            this.state = state;                       
+        public Node(Integer [] state, int dimension) {
+            this.dimension = dimension;
+            this.state = state.clone();
             cost = 0;
+            parentNode = null;            
         } 
 
-        // Returns the string representation of this current state
-        public String currentState(){
-            return state;
+        // Returns this node's current state
+        public Integer [] getCurrentState(){
+            Integer [] currentState = state.clone();
+            return currentState;
         }
         
-        // Changes the current state string representation
-        public void setCurrentNode(String newNode){            
-            state = newNode;
+        // Changes this nodes current state 
+        public void setCurrentState(Integer [] state){                        
+            this.state = state.clone();                                  
         }
         
         // Gets the current cost to get to this state
@@ -44,6 +47,11 @@ public class Node implements Comparator<Node>, Comparable<Node> {
         // Sets the cost for getting to this state
         public void setCost(int newCost){
             cost = newCost;
+        }
+        
+        // Get the matrix dimension
+        public int getDimension(){
+            return this.dimension;
         }
         
         // Returns the parent state for this state
@@ -61,26 +69,30 @@ public class Node implements Comparator<Node>, Comparable<Node> {
             return children;
         }
         
+        // Add a child
+        public void addChild(Node child){
+            children.add(child);
+        }
+        
+        // Print the state
+        public void printState(){
+            int size = this.state.length;
+            for(int i = 0; i < size; i++){
+                if(i%this.dimension == 0)
+                    System.out.println("\n");
+                System.out.print(state[i].toString() + " ");                
+            }
+            System.out.println("\n");
+        }
+        
         @Override
         public String toString() {
-            String contents = state + "\tPuzzle dimension:\t" + 
+            String contents = Arrays.toString(state) + "\tPuzzle dimension:\t" + 
+                    String.valueOf(this.dimension) + " " +
                     String.valueOf(cost); 
             return contents;
         }
-
-        @Override
-        public int compare(Node s1, Node s2) {
-            Node state1 = (Node) s1;
-            Node state2 = (Node) s2;
-
-            // If contents of both objects's strings are same return 0
-            if (state1.toString().equals(state2.toString())) {
-                return 0;
-            } else {
-                return -1;
-            }
-        }
-
+      
         @Override
         public int compareTo(Node state1) {
             return (this.cost - state1.cost);
