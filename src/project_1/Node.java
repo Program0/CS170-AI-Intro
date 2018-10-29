@@ -13,7 +13,7 @@ import java.util.Arrays;
  */
 public class Node implements Comparable<Node> {
     
-        private Integer [] state; // Represents an n-puzzle current state
+        private Integer [] state; // Represents an n-puzzle current state matrix
         private final int dimension; // Row column dimension of the nxn matrix
         private int cost; // To implement A* search
         private List<Node> children; // Expanded children of this state
@@ -30,8 +30,7 @@ public class Node implements Comparable<Node> {
 
         // Returns this node's current state
         public Integer [] getCurrentState(){
-            Integer [] currentState = state.clone();
-            return currentState;
+            return state.clone();            
         }
         
         // Changes this nodes current state 
