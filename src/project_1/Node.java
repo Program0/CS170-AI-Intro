@@ -1,31 +1,30 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * @author Marlo Zeroth
+ * @date October 25, 2018
+ * 
  */
+
 package project_1;
 
 import java.util.List;
 import java.util.Arrays;
-/**
- *
- * @author super0
- */
+import java.util.ArrayList;
+
 public class Node implements Comparable<Node> {
     
         private Integer [] state; // Represents an n-puzzle current state matrix
-        private final int dimension; // Row column dimension of the nxn matrix
         private int cost; // To implement A* search
-        private List<Node> children; // Expanded children of this state
+        private final List<Node> children; // Expanded children of this state
         private Node parentNode; // To track path from initial state to goal state 
 
 
         // Main constructor
-        public Node(Integer [] state, int dimension) {
-            this.dimension = dimension;
+        public Node(Integer [] state) {
             this.state = state.clone();
             cost = 0;
-            parentNode = null;            
+            parentNode = null;
+            children = new ArrayList<>();
+            
         } 
 
         // Returns this node's current state
@@ -47,12 +46,7 @@ public class Node implements Comparable<Node> {
         public void setCost(int newCost){
             cost = newCost;
         }
-        
-        // Get the matrix dimension
-        public int getDimension(){
-            return this.dimension;
-        }
-        
+                
         // Returns the parent state for this state
         public void setParentNode(Node daddy){
             parentNode = daddy;
@@ -65,7 +59,8 @@ public class Node implements Comparable<Node> {
         
         // Returns the expanded states for this state
         public List<Node> getChildren(){
-            return children;
+            List<Node> nodes = new ArrayList<>(children);
+            return nodes;
         }
         
         // Add a child
@@ -76,8 +71,9 @@ public class Node implements Comparable<Node> {
         // Print the state
         public void printState(){
             int size = this.state.length;
+            int dimension = new Double(Math.sqrt(size)).intValue();
             for(int i = 0; i < size; i++){
-                if(i%this.dimension == 0)
+                if(i%dimension == 0)
                     System.out.println("\n");
                 System.out.print(state[i].toString() + " ");                
             }
@@ -87,7 +83,6 @@ public class Node implements Comparable<Node> {
         @Override
         public String toString() {
             String contents = Arrays.toString(state) + "\tPuzzle dimension:\t" + 
-                    String.valueOf(this.dimension) + " " +
                     String.valueOf(cost); 
             return contents;
         }

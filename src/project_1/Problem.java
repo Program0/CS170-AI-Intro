@@ -1,9 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /**
  * @author Marlo Zeroth
  * @date October 25, 2018
@@ -20,37 +14,76 @@ import java.util.Arrays;
 
 public class Problem {
     
-    private Integer [] initial;
-    private Integer [] goal;
-    private final int puzzleMatrixDimension; // The puzzleMatrixDimension of the nxn matrix n-puzzle 
+    private Integer [] initial; // Initial state of the problem
+    private Integer [] goal; // Goal state or solution to the problem
+    private final int matrixDimension; // The matrixDimension of the nxn matrix n-puzzle 
+    private final Operators operator; // Operator object to manipulate nodes 
     
-    Problem(Integer [] initialState, Integer [] goalState, int dimension){
+    // Main constructor
+    public Problem(Integer [] initialState, Integer [] goalState, int dimension){
         this.initial = initialState.clone();
         this.goal = goalState.clone();
-        this.puzzleMatrixDimension = dimension;
+        this.matrixDimension = dimension;
+        this.operator = new Operators();
     }
     
+    public Operators operators(){
+        return this.operator;
+    }
+    
+    /**
+     * @return A copy of the initial state
+     */
     public Integer [] getInitialState(){
         return initial.clone();
     }
     
+    /**
+     * @param initialGoal The starting state for the problem.
+     */
     public void setInitialState(Integer [] initialGoal){
         initial = initialGoal.clone();
     }
     
+    /**
+     * @param goalState The goal state or solution to the problem.
+     */
     public void setGoalState(Integer [] goalState){
         goal = goalState.clone();
     }
     
+    /**
+     * @return A copy of the goal state
+     */
     public Integer [] getGoalState(){
         return goal.clone();        
     }
     
+    /**
+     * @return The size of the nxn puzzle matrix
+     */
     public int getPuzzleDimension(){
-        return puzzleMatrixDimension;
+        return matrixDimension;
     }
     
-    public static class Operators{
+    /**
+     * 
+     * @param state The state to test
+     * @return True if the state is equal to the goal state. False otherwise.
+     */
+    public boolean goalTest(Integer [] state){
+        return Arrays.equals(this.goal, state);
+    }
+    
+    /**
+     * A class of operators to modify or change from one state to another state.
+     */
+    public class Operators{
+        // Cost for using the operators
+        private static final int COST_MOVE_UP = 1;
+        private static final int COST_MOVE_DOWN = 1;
+        private static final int COST_MOVE_LEFT = 1;
+        private static final int COST_MOVE_RIGHT = 1;
          /**
          * Returns a new node with a new state if the blank tile is able to be 
          * moved up. Returns null otherwise.
@@ -61,7 +94,7 @@ public class Problem {
         public Node moveBlankUp(Node node){
             Node newNode = null;
             Integer [] newState = node.getCurrentState();
-            int dimension = node.getDimension();
+            int dimension = matrixDimension;
             int blankPosition = Arrays.asList(newState).indexOf(0);
             int row = blankPosition/dimension;
             int col = blankPosition % dimension;
@@ -71,10 +104,9 @@ public class Problem {
                 newState[dimension*(row-1) + col] = 0;
                 
                 // Createa new node with the new state and cost
-                newNode = new Node(newState,dimension);                
-                // Set the new cost
-                int newCost = node.currentCost()+1;                
-                newNode.setCost(newCost);                
+                newNode = new Node(newState);                
+                // Set the cost                             
+                newNode.setCost(COST_MOVE_UP);                
             }            
             return newNode;
         }
@@ -89,7 +121,7 @@ public class Problem {
         public Node moveBlankDown(Node node){
             Node newNode = null;
             Integer [] newState = node.getCurrentState();
-            int dimension = node.getDimension();
+            int dimension = matrixDimension;
             int blankPosition = Arrays.asList(newState).indexOf(0);
             int row = blankPosition/dimension;
             int col = blankPosition % dimension;
@@ -99,10 +131,9 @@ public class Problem {
                 newState[dimension*(row+1) + col] = 0;
                 
                 // Createa new node with the new state and cost
-                newNode = new Node(newState,dimension);                
-                // Set the new cost
-                int newCost = node.currentCost()+1;                
-                newNode.setCost(newCost);                
+                newNode = new Node(newState);                
+                // Set the new cost                
+                newNode.setCost(COST_MOVE_DOWN);                
             }            
             return newNode;
         }
@@ -117,7 +148,7 @@ public class Problem {
         public Node moveBlankLeft(Node node){
             Node newNode = null;
             Integer [] newState = node.getCurrentState();
-            int dimension = node.getDimension();
+            int dimension = matrixDimension;
             int blankPosition = Arrays.asList(newState).indexOf(0);
             int row = blankPosition/dimension;
             int col = blankPosition % dimension;
@@ -127,10 +158,9 @@ public class Problem {
                 newState[dimension*row + (col - 1)] = 0;
                 
                 // Createa new node with the new state and cost
-                newNode = new Node(newState,dimension);                
-                // Set the new cost
-                int newCost = node.currentCost()+1;                
-                newNode.setCost(newCost);                
+                newNode = new Node(newState);                
+                // Set the new cost                
+                newNode.setCost(COST_MOVE_LEFT);                
             }            
             return newNode;
         }
@@ -145,7 +175,7 @@ public class Problem {
         public Node moveBlankRight(Node node){
             Node newNode = null;
             Integer [] newState = node.getCurrentState();
-            int dimension = node.getDimension();
+            int dimension = matrixDimension;
             int blankPosition = Arrays.asList(newState).indexOf(0);
             int row = blankPosition/dimension;
             int col = blankPosition % dimension;
@@ -155,10 +185,9 @@ public class Problem {
                 newState[dimension*row + (col + 1)] = 0;
                 
                 // Createa new node with the new state and cost
-                newNode = new Node(newState,dimension);                
-                // Set the new cost
-                int newCost = node.currentCost()+1;                
-                newNode.setCost(newCost);                
+                newNode = new Node(newState);                
+                // Set the new cost                
+                newNode.setCost(COST_MOVE_RIGHT);                
             }            
             return newNode;
         }
