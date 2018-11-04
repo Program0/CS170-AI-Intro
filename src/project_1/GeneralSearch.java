@@ -6,6 +6,7 @@
 package project_1;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.PriorityQueue;
@@ -16,12 +17,25 @@ import java.util.PriorityQueue;
  */
 public class GeneralSearch {
 
-    private HashSet<Node> visited; // To keep track of visited states
+    private final HashSet<Node> visited; // To keep track of visited states
     private Problem problem; // To keep track of the puzzle used
+    private int maxQueueSize; // Maximum size of the priority queue at any one time
+    private int numberNodesExpanded; // The total number of nodes expanded.
 
-    public GeneralSearch(){
+    public GeneralSearch() {
         visited = new HashSet<>();
+        maxQueueSize = 0;
+        numberNodesExpanded = 0;
     }
+    
+    public int getTotalNodesExpanded(){
+        return numberNodesExpanded;
+    }
+    
+    public int getMaxQueueSize(){
+        return maxQueueSize;
+    }
+
     public Node generalSearch(Problem problem, QueueingFunction function) {
         this.problem = problem; // Set to make use of the puzzle goal in heuristics
         PriorityQueue<Node> nodes = makeQueue(makeNode(problem.getInitialState()));
@@ -34,7 +48,7 @@ public class GeneralSearch {
             if (problem.goalTest(node.getCurrentState())) {
                 return node;
             }
-            nodes = function.queueFunction(nodes, expand(node, problem.operators()));
+            nodes = function.queueFunction(nodes, expand(node, problem));
         }
     }
 
@@ -49,15 +63,12 @@ public class GeneralSearch {
         public PriorityQueue<Node> queueFunction(PriorityQueue<Node> nodes,
                 List<Node> newNodes) {
             for (Node node : newNodes) {
-                node.setCost(uniformCostSearch(node));
+                node.setCost(uniformCost(node));
+                node.setHeuristicCost(0);
+                node.setSearchCost(node.currentCost() + node.getHeuristicCost());
                 nodes.add(node);
             }
             return nodes;
-        }
-
-        protected int uniformCostSearch(Node node) {
-            int cost = node.currentCost() + node.getParentNode().currentCost();
-            return cost;
         }
     }
 
@@ -66,52 +77,86 @@ public class GeneralSearch {
         @Override
         public PriorityQueue<Node> queueFunction(PriorityQueue<Node> nodes,
                 List<Node> newNodes) {
-            for(Node node : newNodes){
-                int cost = uniformCostSearch(node) + missingTileCount(node);
-                node.setCost(cost);
+            for (Node node : newNodes) {
+                node.setCost(uniformCost(node));
+                node.setHeuristicCost(missingTileCount(node));
+                node.setSearchCost(node.currentCost()+node.getHeuristicCost());
                 nodes.add(node);
             }
             return nodes;
         }
-
-        /**
-         *
-         */
-        private int missingTileCount(Node node) throws IllegalArgumentException {
-            int cost = 0;
-            Integer[] state = node.getCurrentState();
-            Integer[] goal = problem.getGoalState();
-            int size = goal.length;
-            if (state.length != goal.length) {
-                throw new IllegalArgumentException();
-            } else {
-                for (int i = 0; i < size; i++) {
-                    if (goal[i].equals(state[i]) && !state[i].equals(0)) {
-                        cost++;
-                    }
-                }
-                return cost;
-            }
-        }
     }
-    
-    public class ManhattanDistanceHeuristic extends UniformCostHeuristic implements QueueingFunction{
+
+    public class ManhattanDistanceHeuristic extends UniformCostHeuristic implements QueueingFunction {
+
         @Override
         public PriorityQueue<Node> queueFunction(PriorityQueue<Node> nodes,
                 List<Node> newNodes) {
-            for(Node node : newNodes){
-                int cost = uniformCostSearch(node) + manhattanDistance(node);
-                node.setCost(cost);
+            for (Node node : newNodes) {
+                node.setCost(uniformCost(node));
+                node.setHeuristicCost(manhattanDistance(node));
+                node.setSearchCost(node.currentCost()+node.getHeuristicCost());
                 nodes.add(node);
             }
             return nodes;
         }
-        
-        private int manhattanDistance(Node node){
-            int cost = 0;
+    }
+
+    private int uniformCost(Node node) {
+        int cost = node.currentCost() + node.getParentNode().currentCost();
+        return cost;
+    }
+
+    /**
+     *
+     */
+    private int missingTileCount(Node node) throws IllegalArgumentException {
+        int cost = 0;
+        Integer[] state = node.getCurrentState();
+        Integer[] goal = problem.getGoalState();
+        int size = goal.length;
+        if (state.length != goal.length) {
+            throw new IllegalArgumentException();
+        } else {
+            for (int i = 0; i < size; i++) {
+                // Don't count the blank symbolized by 0
+                if (goal[i].equals(state[i]) && !state[i].equals(0)) {
+                    cost++;
+                }
+            }
             return cost;
         }
+    }
 
+    /**
+     *
+     */
+    private int manhattanDistance(Node node) throws IllegalArgumentException {
+        int cost = 0;
+        Integer[] state = node.getCurrentState();
+        Integer[] goal = problem.getGoalState();
+        int size = goal.length;
+        int distance;
+        int goalPosition;
+        int tileRow, goalRow, tileColumn, goalColumn;
+        int width = problem.getPuzzleDimension();
+        if (state.length != goal.length) {
+            throw new IllegalArgumentException();
+        } else {
+            for (int position = 0; position < size; position++) {
+                // Don't count the blank symbolized by 0
+                if (!state[position].equals(0)) {
+                    goalPosition = Arrays.asList(goal).indexOf(state[position]);
+                    tileRow = position / width;
+                    tileColumn = position % width;
+                    goalRow = goalPosition / width;
+                    goalColumn = goalPosition % width;
+                    distance = Math.abs(tileRow - goalRow) + Math.abs(tileColumn - goalColumn);
+                    cost += distance;
+                }
+            }
+            return cost;
+        }
     }
 
     /**
@@ -124,8 +169,14 @@ public class GeneralSearch {
     private Node removeFront(PriorityQueue<Node> nodes) {
 
         Node node = null;
+        if(maxQueueSize < nodes.size()){
+            maxQueueSize = nodes.size();
+        }
         if (!nodes.isEmpty()) {
             node = nodes.poll();
+            System.out.println("The best state to expand with " + "g(" 
+                    + node.currentCost() + ")" + " h("+node.getHeuristicCost() + ")" );
+            node.printState();
             visited.add(node);
         }
         return node;
@@ -134,11 +185,13 @@ public class GeneralSearch {
     private PriorityQueue<Node> makeQueue(Node node) {
         PriorityQueue<Node> queue = new PriorityQueue<>();
         queue.add(node);
+        maxQueueSize = queue.size();
         return queue;
     }
 
     private Node makeNode(Integer[] initialState) {
         Node node = new Node(initialState);
+        numberNodesExpanded = 1;
         return node;
     }
 
@@ -150,7 +203,11 @@ public class GeneralSearch {
      * @param input Node containing the state to expand using an operators
      * object methods.
      */
-    private List<Node> expand(Node input, Problem.Operators operators) {
+    private List<Node> expand(Node input, Problem problem) {
+
+        System.out.println("Expanding state:");
+        input.printState();
+        Problem.Operators operators = problem.new Operators();
 
         List<Node> expandedStateList = new ArrayList<>();
 
@@ -159,6 +216,7 @@ public class GeneralSearch {
             expandedStateList.add(moveUpState);
             input.addChild(moveUpState);
             moveUpState.setParentNode(input);
+            numberNodesExpanded++;
         }
 
         Node moveDownState = operators.moveBlankDown(input);
@@ -166,6 +224,7 @@ public class GeneralSearch {
             expandedStateList.add(moveDownState);
             input.addChild(moveDownState);
             moveDownState.setParentNode(input);
+            numberNodesExpanded++;
         }
 
         Node moveLeftState = operators.moveBlankLeft(input);
@@ -173,6 +232,7 @@ public class GeneralSearch {
             expandedStateList.add(moveLeftState);
             input.addChild(moveLeftState);
             moveLeftState.setParentNode(input);
+            numberNodesExpanded++;
         }
 
         Node moveRightState = operators.moveBlankRight(input);
@@ -180,9 +240,8 @@ public class GeneralSearch {
             expandedStateList.add(moveRightState);
             input.addChild(moveRightState);
             moveRightState.setParentNode(input);
+            numberNodesExpanded++;
         }
-
         return expandedStateList;
     }
-
 }

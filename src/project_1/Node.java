@@ -13,7 +13,9 @@ import java.util.ArrayList;
 public class Node implements Comparable<Node> {
     
         private Integer [] state; // Represents an n-puzzle current state matrix
-        private int cost; // To implement A* search
+        private int cost; // Current cost to get to this node
+        private int heuristicCost; // Cost it takes to move to a new state
+        private int searchCost; // Cost to enqueue this node into 
         private final List<Node> children; // Expanded children of this state
         private Node parentNode; // To track path from initial state to goal state 
 
@@ -22,6 +24,7 @@ public class Node implements Comparable<Node> {
         public Node(Integer [] state) {
             this.state = state.clone();
             cost = 0;
+            heuristicCost = 0;
             parentNode = null;
             children = new ArrayList<>();
             
@@ -42,9 +45,24 @@ public class Node implements Comparable<Node> {
             return cost;
         }
         
-        // Sets the cost for getting to this state
         public void setCost(int newCost){
             cost = newCost;
+        }
+        
+        public void setHeuristicCost(int cost){
+            heuristicCost = cost;
+        }
+        
+        public int getHeuristicCost(){
+            return heuristicCost;
+        }
+        
+        public void setSearchCost(int cost){
+            searchCost = cost;
+        }
+        
+        public int getSearchCost(){
+            return searchCost;
         }
                 
         // Returns the parent state for this state
@@ -89,6 +107,6 @@ public class Node implements Comparable<Node> {
       
         @Override
         public int compareTo(Node state1) {
-            return (this.cost - state1.cost);
+            return (this.searchCost - state1.searchCost);
         }    
 }
