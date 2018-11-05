@@ -97,6 +97,10 @@ public class Node implements Comparable<Node> {
         System.out.println("\n");
     }
 
+    /**
+     * Override the equals, compareTo and hashcode methods to use the node 
+     * class with the PriorityQueue and Set classes.
+     */
     @Override
     public String toString() {
         String contents = Arrays.toString(state) + "\tPuzzle dimension:\t"

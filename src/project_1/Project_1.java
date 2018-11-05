@@ -5,11 +5,12 @@
 package project_1;
 
 import java.util.Scanner;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashSet;
 
 public class Project_1 {
+
+    // Gather user input for options
+    public static final Scanner reader = new Scanner(System.in);
 
     /**
      * @param args the command line arguments
@@ -41,16 +42,16 @@ public class Project_1 {
 
         GeneralSearch.UniformCostHeuristic uniformCostHeuristic = search.new UniformCostHeuristic();
 
-        // Gather user input for options
-        Scanner reader = new Scanner(System.in);
-        int option = getPuzzleChoice(reader);
+        int option = getPuzzleChoice();
         int heuristicOption;
 
+        // TODO Clean up the switch statement and implement the user interface
+        // as a set of functions.
         switch (option) {
             case 1:
                 try {
                     System.out.println("Enter your choice of algorithm");
-                    heuristicOption = getHeuristicChoice(reader);
+                    heuristicOption = getHeuristicChoice();
                     switch (heuristicOption) {
                         case 1:
                             nPuzzle = new Problem(defaultPuzzle, defaultGoalState, EIGHT_PUZZLE_SIZE);
@@ -74,20 +75,19 @@ public class Project_1 {
             case 2:
                 try {
                     optionalGoalPuzzle = getGoalPuzzle(EIGHT_PUZZLE_SIZE);
-                    optionalGoalPuzzle = getUserPuzzle(reader, EIGHT_PUZZLE_SIZE);
-                    System.out.println("Enter your choice of algorithm");
-                    heuristicOption = getHeuristicChoice(reader);
+                    optionalPuzzle = getUserPuzzle(EIGHT_PUZZLE_SIZE);
+                    heuristicOption = getHeuristicChoice();
                     switch (heuristicOption) {
                         case 1:
-                            nPuzzle = new Problem(optionalGoalPuzzle, optionalGoalPuzzle, EIGHT_PUZZLE_SIZE);
+                            nPuzzle = new Problem(optionalPuzzle, optionalGoalPuzzle, EIGHT_PUZZLE_SIZE);
                             solution = search.generalSearch(nPuzzle, uniformCostHeuristic);
                             break;
                         case 2:
-                            nPuzzle = new Problem(optionalGoalPuzzle, optionalGoalPuzzle, EIGHT_PUZZLE_SIZE);
+                            nPuzzle = new Problem(optionalPuzzle, optionalGoalPuzzle, EIGHT_PUZZLE_SIZE);
                             solution = search.generalSearch(nPuzzle, missingTileHeuristic);
                             break;
                         default:
-                            nPuzzle = new Problem(optionalGoalPuzzle, optionalGoalPuzzle, EIGHT_PUZZLE_SIZE);
+                            nPuzzle = new Problem(optionalPuzzle, optionalGoalPuzzle, EIGHT_PUZZLE_SIZE);
                             solution = search.generalSearch(nPuzzle, manhattanDistanceHeuristic);
                             break;
                     }
@@ -109,78 +109,80 @@ public class Project_1 {
         System.out.println("The maximum number of nodes in the queue at any one time was "
                 + search.getMaxQueueSize() + ".");
         int depth = 0;
-        System.out.println("Path from solution note it is backwards:");
         Node node = solution;
         while (node != null) {
-            System.out.println("State at depth:" + depth);
-            node.printState();
-            node = node.getParentNode();
-
             depth++;
         }
         System.out.println("Goal!!");
         System.out.println("The depth of the goal was " + (depth - 1));
-
-        // Testing the equals method
+        reader.close();
+        System.exit(0);
     }
 
-    public static int getPuzzleChoice(Scanner reader) {
+    /**
+     * Returns the user choice whether to use the default puzzle or to enter a
+     * custom puzzle.
+     */
+    public static int getPuzzleChoice() {
         System.out.println("Welcome to Marlo Zeroth's 8-puzzle solver.");
         System.out.println("Type 1 to use a default puzzle, or 2 to enter your own puzzle.");
-        return reader.nextInt();
+        int choice = Integer.parseInt(reader.nextLine());
+        return choice;
     }
 
-    public static int getHeuristicChoice(Scanner reader) {
-        System.out.println("Enter your choice of algorithm");
+    /**
+     * Returns the user input for which heuristic to use for the problem.
+     */
+    public static int getHeuristicChoice() {
+        System.out.println("\nEnter your choice of algorithm");
         System.out.println("\t1. Uniform Cost Search");
         System.out.println("\t2. Missing Tile Heuristic");
         System.out.println("\t3. Manhattan Distance Heuristic");
-        return reader.nextInt();
+        int choice = Integer.parseInt(reader.nextLine());
+        return choice;
     }
 
+    /**
+     * Returns an integer array for custom goal puzzle based on size.
+     */
     public static Integer[] getGoalPuzzle(int size) {
-        Integer[] puzzle = new Integer[size];
-        for (int i = 0; i < size - 1; i++) {
+        int dimension = size*size;
+        Integer[] puzzle = new Integer[dimension];
+        for (int i = 0; i < dimension - 1; i++) {
             puzzle[i] = i + 1;
         }
-        puzzle[size - 1] = 0;
+        puzzle[dimension - 1] = 0;
         return puzzle;
     }
 
-    public static Integer[] getUserPuzzle(Scanner reader, int size) {
-        List<Integer> lines = new ArrayList<>();
+    /**
+     * Returns a one dimensional integer array to be used in building the custom
+     * puzzle problem.
+     */
+    public static Integer[] getUserPuzzle(int size) {
         boolean valid = false;
-        Integer[] puzzle;
-        Integer test;
-        int linesEntered = 0;
+        int arraySize = size * size;
+        Integer[] puzzle = new Integer[arraySize];        
+        HashSet<Integer> puzzleSet = new HashSet<>();
+
         do {
-            while (!valid) {
-                System.out.println("Enter your puzzle, use a zero to represent the blank");
-                System.out.println("Enter the row number " + Integer.toString(linesEntered + 1) + ", use space or tabs between numbers");
-                String[] numbers = reader.next().split("\t\\s+");
-                try {
-                    test = Integer.parseInt(Arrays.toString(numbers));
-                    if (numbers.length == size && test.compareTo(0) > 0) {
-                        for (String s : numbers) {
-                            lines.add(Integer.parseInt(s));
-                        }
-                        valid = true;
-                    } else {
-                        System.out.println("Enter a line of " + Integer.toString(size) + " integers separated by space or tabs.");
-                    }
-
-                } catch (NumberFormatException e) {
-                    System.out.println("Enter a line of " + Integer.toString(size) + " integers separated by space or tabs.");
+            System.out.println("\nEnter your puzzle, use a zero to represent the blank");
+            int element = 0;
+            String input;
+            for (int i = 0; i < size; i++) {
+                System.out.print("\nEnter row number " + Integer.toString(i + 1) + ", use space or tabs between numbers:  ");
+                Scanner lineScanner = new Scanner(reader.nextLine());
+                while (lineScanner.hasNext()) {
+                    input = lineScanner.next();
+                    puzzle[element] = new Integer(input);
+                    puzzleSet.add(puzzle[element]); // Test for duplicate entries
+                    element++;
                 }
-
             }
-            valid = false; // Go to the next line
-            linesEntered++;
-        } while (linesEntered < size);
-
-        reader.close();
-        puzzle = (Integer[]) lines.toArray();
+            if(puzzleSet.size() == arraySize){
+                valid = true;
+            }
+        } while (!valid);
         return puzzle;
-
     }
 }

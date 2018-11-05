@@ -22,9 +22,10 @@ public class Problem {
     // Main constructor
     public Problem(Integer [] initialState, Integer [] goalState, int dimension) throws IllegalArgumentException {
         // Make sure we have an nxn matrix
-        int calcDimension = new Double(Math.sqrt(goalState.length)).intValue();
+        int goalDimension = new Double(Math.sqrt(goalState.length)).intValue();
+        int puzzleDimension = new Double(Math.sqrt(initialState.length)).intValue();
         
-        if( calcDimension != dimension ){
+        if( goalDimension != dimension || puzzleDimension != dimension){
             throw new IllegalArgumentException();            
         }
         this.initial = initialState.clone();

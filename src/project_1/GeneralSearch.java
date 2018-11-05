@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package project_1;
 
 import java.util.ArrayList;
@@ -36,6 +31,9 @@ public class GeneralSearch {
         return maxQueueSize;
     }
 
+    /**
+     * Main algorithm for search given during lecture
+     */
     public Node generalSearch(Problem problem, QueueingFunction function) {
         this.problem = problem; // Set to make use of the puzzle goal in heuristics
         PriorityQueue<Node> nodes = makeQueue(makeNode(problem.getInitialState()));
@@ -60,7 +58,8 @@ public class GeneralSearch {
     }
     
     /**
-     * 
+     * Implements the queueing function as uniform cost search 
+     * with f(n) = g(n) + 0
      */
     public class UniformCostHeuristic implements QueueingFunction {
 
@@ -77,6 +76,9 @@ public class GeneralSearch {
         }
     }
 
+    /**
+     * Counts the tiles that are out of place as a heuristic     
+     */
     public class MissingTileHeuristic extends UniformCostHeuristic implements QueueingFunction {
 
         @Override
@@ -92,6 +94,9 @@ public class GeneralSearch {
         }
     }
 
+    /**
+     * Uses the distance all tiles would need to move to reach the goal state.
+     */
     public class ManhattanDistanceHeuristic extends UniformCostHeuristic implements QueueingFunction {
 
         @Override
@@ -107,6 +112,9 @@ public class GeneralSearch {
         }
     }
 
+    /**
+     * 
+     */
     private int uniformCost(Node node) {
         int cost = node.currentCost() + node.getParentNode().currentCost();
         return cost;
@@ -134,7 +142,8 @@ public class GeneralSearch {
     }
 
     /**
-     *
+     * Calculates the distance each tile is away from its position 
+     * for all tiles in the puzzle. Returns the sum of this result.
      */
     private int manhattanDistance(Node node) throws IllegalArgumentException {
         int cost = 0;
@@ -187,6 +196,10 @@ public class GeneralSearch {
         return node;
     }
 
+    /**
+     * Makes a priority queue to use with uniform cost search algorithm. Returns
+     * the node with minimum search cost.
+     */
     private PriorityQueue<Node> makeQueue(Node node) {
         PriorityQueue<Node> queue = new PriorityQueue<>();
         queue.add(node);
@@ -194,8 +207,13 @@ public class GeneralSearch {
         return queue;
     }
 
+    /**
+     * Creates the first node in the tree for use in solving the puzzle.
+     */
     private Node makeNode(Integer[] initialState) {
         Node node = new Node(initialState);
+        node.setCost(0); // First node has no cost
+        
         numberNodesExpanded = 1;
         return node;
     }
