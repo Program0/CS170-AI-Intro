@@ -52,11 +52,16 @@ public class GeneralSearch {
         }
     }
 
+    /**
+     * Queueing function to be implemented by different heuristics
+     */
     public interface QueueingFunction {
-
         public abstract PriorityQueue<Node> queueFunction(PriorityQueue<Node> nodes, List<Node> newNodes);
     }
-
+    
+    /**
+     * 
+     */
     public class UniformCostHeuristic implements QueueingFunction {
 
         @Override
@@ -120,7 +125,7 @@ public class GeneralSearch {
         } else {
             for (int i = 0; i < size; i++) {
                 // Don't count the blank symbolized by 0
-                if (goal[i].equals(state[i]) && !state[i].equals(0)) {
+                if (!goal[i].equals(state[i]) && !state[i].equals(0)) {
                     cost++;
                 }
             }
@@ -197,7 +202,7 @@ public class GeneralSearch {
 
     /**
      * @return A list of new states if input state can be expanded and the
-     * expanded nodes are not in the visited set. Returns and empty list
+     * expanded nodes are not in the visited set. Returns an empty list
      * otherwise.
      * @param operators Operator object that modifies a Node input's state.
      * @param input Node containing the state to expand using an operators

@@ -20,7 +20,13 @@ public class Problem {
     private final Operators operator; // Operator object to manipulate nodes 
     
     // Main constructor
-    public Problem(Integer [] initialState, Integer [] goalState, int dimension){
+    public Problem(Integer [] initialState, Integer [] goalState, int dimension) throws IllegalArgumentException {
+        // Make sure we have an nxn matrix
+        int calcDimension = new Double(Math.sqrt(goalState.length)).intValue();
+        
+        if( calcDimension != dimension ){
+            throw new IllegalArgumentException();            
+        }
         this.initial = initialState.clone();
         this.goal = goalState.clone();
         this.matrixDimension = dimension;
@@ -41,22 +47,36 @@ public class Problem {
     /**
      * @param initialGoal The starting state for the problem.
      */
-    public void setInitialState(Integer [] initialGoal){
-        initial = initialGoal.clone();
+    public void setInitialState(Integer [] initialGoal) throws IllegalArgumentException {
+        // Make sure we have an nxn matrix
+        int dimension = initialGoal.length;
+        int calcDimension = new Double(Math.sqrt(dimension)).intValue();
+        
+        if( calcDimension != dimension ){
+            throw new IllegalArgumentException();            
+        }
+        this.initial = Arrays.copyOf(initial, dimension);
     }
     
     /**
      * @param goalState The goal state or solution to the problem.
      */
-    public void setGoalState(Integer [] goalState){
-        goal = goalState.clone();
+    public void setGoalState(Integer [] goalState) throws IllegalArgumentException {
+              // Make sure we have an nxn matrix
+        int dimension = goalState.length;
+        int calcDimension = new Double(Math.sqrt(dimension)).intValue();
+        
+        if( calcDimension != dimension ){
+            throw new IllegalArgumentException();            
+        }
+        this.goal = Arrays.copyOf(goalState, dimension);
     }
     
     /**
      * @return A copy of the goal state
      */
     public Integer [] getGoalState(){
-        return goal.clone();        
+        return Arrays.copyOf(goal, goal.length);        
     }
     
     /**
@@ -72,7 +92,7 @@ public class Problem {
      * @return True if the state is equal to the goal state. False otherwise.
      */
     public boolean goalTest(Integer [] state){
-        return Arrays.equals(this.goal, state);
+        return Arrays.deepEquals(this.goal, state);
     }
     
     /**
