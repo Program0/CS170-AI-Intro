@@ -9,7 +9,7 @@ def leave_one_out_cross_validation(data, current_set, feature_to_add):
     actual_class_label = 0
     classified_label = 0
     set_of_features = set(list(current_set))
-    if feature_to_add <= number_of_features:
+    if feature_to_add <= number_of_features and feature_to_add > 0:
         set_of_features.add(feature_to_add)
     list_of_features = list(set_of_features)
     # For each point in data, go through each data point and 
@@ -20,6 +20,6 @@ def leave_one_out_cross_validation(data, current_set, feature_to_add):
         classified_label = nearest_neighbor(data, list_of_features, row)
         if(class_label == classified_label):
             number_correct += 1
-    # Get the accuracy for the nearest neighbor classifier
+    # Get the accuracy for the nearest neighbor classifier    
     accuracy = float(number_correct/rows)
     return accuracy

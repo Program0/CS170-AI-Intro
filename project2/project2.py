@@ -1,77 +1,48 @@
 import math
+import sys
 import numpy as np
 from random import randint
-from nearest_neighbor import nearest_neighbor
-from leave_one_out import leave_one_out_cross_validation
+from search import forward_selection, backward_elimination
+from search import marlo_algorithm, print_detail
 
 #data = open('CS170_SMALLtestdata__32.txt','r')
 #data = np.genfromtxt('CS170_SMALLtestdata__32.txt')
 data_32 = np.loadtxt('CS170_SMALLtestdata__32.txt')
 
-data_108 =np.loadtxt('CS170_SMALLtestdata__108.txt')
-data_109 =np.loadtxt('CS170_SMALLtestdata__109.txt')
-data_110 = np.loadtxt('CS170_SMALLtestdata__110.txt')
-
-
-#def leave_one_out_cross_validation(data, current_set, feature_to_add):
-#    accuracy = randint(0, 100)
-#    return accuracy
-
-def add_feature(data, current_set_of_features, feature_to_add):
-    print('hello')
+print('Welcome to Marlo Zeroth\'s Feature Selection Algorithm')
+try:
+    file_name = input('Type in the name of the file to test: ')
+    data = np.loadtxt(file_name)
     
-def feature_search_demo(data):
-    current_set_of_features = set()
+except IOError:
+    print('File does not exist. Exiting')
+    sys.exit()
     
-    number_of_features = data.shape[1]
-    print('Number of features:' + str(number_of_features))
-    max_accuracy = 0
-    best_set_of_features = set()
+try:
+    print('Type the number of the algorithm you want to run\n' +
+          '\t1) Forward Selection\n' +
+          '\t2) Backward Elimination\n' +
+          '\t3) Marlo\'s Special Algorithm\n')
+    option = input('Enter your choice: ')
     
-    for i in range(1, number_of_features):
-        print('On the ' + str(i) + 'th level of the search tree')
-        feature_to_add_at_this_level = 0
-        best_so_far_accuracy = 0
+    if  option == str(1):
+        print_detail(data)
+        forward_selection(data)
         
-        for k in range(1, number_of_features):
-            if k not in current_set_of_features:
-                #print('Current set of features: ' + str(current_set_of_features))
-                
-                print('--Considering adding ' + str(k) + ' feature')
-                
-                
-                accuracy = leave_one_out_cross_validation(data, current_set_of_features, k)
-                print('Accuracy from adding ' + str(k) + ': ' +str(accuracy))
-                
-                if accuracy == best_so_far_accuracy:
-                    best_set_of_features.add(frozenset([k]))
-                
-                if accuracy > best_so_far_accuracy:
-                    best_so_far_accuracy = accuracy
-                    feature_to_add_at_this_level = k
-                    if( max_accuracy < accuracy):
-                        max_accuracy = accuracy            
-                    
-        if feature_to_add_at_this_level > 0: 
-            current_set_of_features.add(feature_to_add_at_this_level)
+    elif option == str(2):
+        print_detail(data)
+        backward_elimination(data)
         
-        if(max_accuracy <= best_so_far_accuracy):
-              print('max accuracy: ' + str(max_accuracy) + 
-                    ' <= current best: ' + str(best_so_far_accuracy))              
-              
-        if(max_accuracy > best_so_far_accuracy):
-              print('max accuracy: ' + str(max_accuracy) + 
-                    ' > current best: ' + str(best_so_far_accuracy))                            
-              
-        #print('Current set of features: ' + str(current_set_of_features))
-        print('On level ' + str(i) + ' I added feature ' + 
-              str(feature_to_add_at_this_level) + ' to current set' + 
-              ' with accuracy ' + str(best_so_far_accuracy))
-              
-    return current_set_of_features
+    elif option == str(3):
+        print_detail(data)
+        marlo_algorithm(data)
+        
+    else:
+        print('Invalid option. Exiting program.')
+        sys.exit()
+        
+except ValueError:
+    print('user input something other than a number')
+    sys.exit()
 
-#feature_set_38 = feature_search_demo(data_32)
-#print('Final features: ' + str(feature_set_38))
 
-feature_set = feature_search_demo(data_108)
-print('Final features: ' + str(feature_set))
