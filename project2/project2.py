@@ -4,6 +4,7 @@ import numpy as np
 from random import randint
 from search import forward_selection, backward_elimination
 from search import marlo_algorithm, print_detail
+from normalize import normalize #yields different results  
 
 #data = open('CS170_SMALLtestdata__32.txt','r')
 #data = np.genfromtxt('CS170_SMALLtestdata__32.txt')
@@ -11,7 +12,9 @@ data_32 = np.loadtxt('CS170_SMALLtestdata__32.txt')
 
 print('Welcome to Marlo Zeroth\'s Feature Selection Algorithm')
 try:
-    file_name = input('Type in the name of the file to test: ')
+    file_name = input('Type in the name of the file to test: ')    
+    #data_no_norm = np.loadtxt(file_name) 
+    #data = normalize(data_no_norm) # Yields higher accuracy for some data sets
     data = np.loadtxt(file_name)
     
 except IOError:

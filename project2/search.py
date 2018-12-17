@@ -9,9 +9,9 @@ def print_detail(data):
           'the class attribute), with %d instances'  %number_of_instances)
     feature_set = list(range(1,number_of_features))
     accuracy = leave_one_out_cross_validation(data, feature_set, 0)
-    print('Running nearest neighbor with all %d features, ', 
-          (number_of_features-1), 
-          'using \"leaving-one-out\" evaluation, I get and accuracy of 
+    print('Running nearest neighbor with all %d features, ' %(number_of_features-1), 
+          'using \"leaving-one-out\" evaluation, I get and accuracy of %.2f' %(accuracy*100)
+          , '%\n')
 
 def forward_selection(data):
     print('Beginning Search:')
@@ -30,41 +30,40 @@ def forward_selection(data):
         best_so_far_accuracy = 0
         
         for k in range(1, number_of_features):
-            if k not in current_set_of_features:                
+            level_set = set(list(current_set_of_features))
+            if k not in current_set_of_features:   
+                level_set.add(k)
                 accuracy = leave_one_out_cross_validation(data, 
-                                                          current_set_of_features, 
+                                                          level_set, 
                                                           k)
-
+                print('\tUsing features ', level_set,
+                      ' accuracy is %.2f' %(accuracy*100), '%')
+                      
                 if accuracy > best_so_far_accuracy:
                     best_so_far_accuracy = accuracy
                     feature_to_add_at_this_level = k
                     
                 if( max_accuracy < accuracy):
                     max_accuracy = accuracy
-                    best_set_of_features.add(feature_to_add_at_this_level)                        
+                    best_set_of_features = set(list(level_set))                        
         
         
         current_set_of_features.add(feature_to_add_at_this_level)
-        print('Feature set ', current_set_of_features, 
+        print('\n\tFeature set ', current_set_of_features, 
                   ' was best, accuracy is %.2f' %(best_so_far_accuracy*100),
                   '%\n')        
         
         if(max_accuracy > best_so_far_accuracy):
-            print('max accuracy: ' + str(max_accuracy) + 
-                  ' > current best: ' + str(best_so_far_accuracy))
             print('Warning, accuracy has decreased! Continuing ' +
                   'seach in case of local maxima')
             print('Feature set ', best_set_of_features, 
                   ' was best, accuracy is %.2f' %(max_accuracy*100),
                   '%\n')
 
-
-        if(max_accuracy < best_so_far_accuracy):
-            print('max accuracy: ' + str(max_accuracy) + 
-                  ' <= current best: ' + str(best_so_far_accuracy))            
-            
-              
-    print('Best set of features: ' +str(best_set_of_features))
+    print('Best set of features: ', best_set_of_features, 
+          ' with accuracy: %.2f' %(max_accuracy*100))
+          
+    return (best_set_of_features, max_accuracy)
 
 def backward_elimination(data):
     print('Beginning Search:')
@@ -87,10 +86,10 @@ def backward_elimination(data):
         
         for k in range(1, number_of_features):
             level_set = set(list(current_set_of_features))
-            print('\tk is %d and Current set: ' %k, current_set_of_features)
+            
             if k in level_set:                
                 level_set.discard(k)
-                print('\tTemporary set: ', level_set)
+                
                 accuracy = leave_one_out_cross_validation(data, level_set, 0)
                 print('\tUsing features ', level_set,
                       ' accuracy is %.2f' %(accuracy*100), '%')
@@ -104,25 +103,21 @@ def backward_elimination(data):
         
         current_set_of_features.discard(feature_to_remove_at_this_level)
         
-        print('Feature set ', current_set_of_features, 
+        print('\n\tFeature set ', current_set_of_features, 
                   ' was best, accuracy is %.2f' %(best_so_far_accuracy*100),
                   '%\n')        
         
         if(max_accuracy > best_so_far_accuracy):
-            print('max accuracy: ' + str(max_accuracy) + 
-                  ' > current best: ' + str(best_so_far_accuracy))
             print('Warning, accuracy has decreased! Continuing ' +
                   'seach in case of local maxima')
             print('Feature set ', best_set_of_features, 
                   ' was best, accuracy is %.2f' %(max_accuracy*100),
                   '%\n')
-
-        if(max_accuracy < best_so_far_accuracy):
-            print('max accuracy: ' + str(max_accuracy) + 
-                  ' <= current best: ' + str(best_so_far_accuracy))            
                           
     print('Best set of features: ', best_set_of_features, 
           ' with accuracy: %.2f' %(max_accuracy*100))
+          
+    return (best_set_of_features, max_accuracy)
     
 def marlo_algorithm(data):
     print('Marlo\'s Special Algorithm stub')
